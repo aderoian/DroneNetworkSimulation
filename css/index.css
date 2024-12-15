@@ -10,6 +10,17 @@
     --danger-color: #dc3545;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
     font-family: Inter, sans-serif;
     font-size: 1rem;
@@ -21,6 +32,19 @@ body {
 
 button, select {
     cursor: pointer;
+}
+
+.header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    background-color: var(--primary-color);
 }
 
 .menu {
@@ -41,7 +65,7 @@ button, select {
     color: white;
 
     width: 200px;
-    height: 200px;
+    height: 150px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -64,3 +88,93 @@ button, select {
     width: 100%;
     text-align: center;
 }
+
+.map {
+    width: 100%;
+    height: 100%;
+}
+
+.pieces {
+    position: absolute;
+    top: 80px;
+    left: 10px;
+    z-index: 100;
+    width: 150px;
+    background-color: rgba(0, 0, 0, 0.5);
+
+    padding: 5px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    color: white;
+}
+
+.pieces-header, .controls-header {
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.pieces-body, .controls-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.piece {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    margin: 2px 5px;
+    padding: 5px;
+    width: 100%;
+    color: white;
+    border-radius: 5px;
+
+    label {
+        margin-right: 10px;
+    }
+}
+
+.piece:hover, .control:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.controls {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 100;
+    width: 150px;
+    background-color: rgba(0, 0, 0, 0.5);
+
+    padding: 5px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    color: white;
+}
+
+.control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    margin: 2px 5px;
+    padding: 5px;
+    width: 100%;
+    color: white;
+    border-radius: 5px;
+}
+
+
+

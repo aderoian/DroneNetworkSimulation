@@ -10,33 +10,65 @@
     <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
-    <div class="root">
-        <div class="header">
-            <h1>Drone Delivery Simulation</h1>
-        </div>
-        <div class="content">
-            <div class="menu">
-                <div class="menu-container">
-                    <div class="menu-header">
-                        <h2>Start Menu</h2>
-                    </div>
-                    <div class="menu-body">
-                        <div class="menu-item">
-                            <label for="algorithm">Algorithm</label> <br>
-                            <select id="algorithm">
-                                <option value="1">A*</option>
-                                <option value="2">Dijkstra</option>
-                                <option value="3">BFS</option>
-                                <option value="4">DFS</option>
-                            </select>
-                        </div>
-                        <div class="menu-item">
-                            <button id="start">Start</button>
-                        </div>
-                    </div>
+    <div class="header">
+        <h1>Drone Delivery Simulation</h1>
+    </div>
+    <div class="menu">
+        <div class="menu-container">
+            <div class="menu-header">
+                <h2>Start Menu</h2>
+            </div>
+            <div class="menu-body">
+                <div class="menu-item">
+                    <label for="algorithm">Algorithm</label> <br>
+                    <select id="algorithm">
+                        <option value="1">A*</option>
+                        <option value="2">Dijkstra</option>
+                        <option value="3">BFS</option>
+                        <option value="4">DFS</option>
+                    </select>
+                </div>
+                <div class="menu-item">
+                    <button id="start">Start</button>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="map">
+
+    </div>
+    <div class="pieces">
+            <div class="pieces-header">
+                <h2>Pieces</h2>
+            </div>
+            <div class="pieces-body">
+                <div id="drone-port-select" class="piece">
+                    <label for="drone-port">Drone Port: </label>
+                    <img id="drone-port" class="map-element" src="./assets/landing_pad.svg" height="32" width="32" alt="LP">
+                </div>
+                <div id="path-node-select" class="piece">
+                    <label for="path-node">Path Node: </label>
+                    <div id="path-node" class="map-element" style="height: 16px; width: 16px; background-color: black; border-radius: 50%;"></div>
+                </div>
+            </div>
+    </div>
+    <div class="controls">
+            <div class="controls-header">
+                <h2>Controls</h2>
+            </div>
+            <div class="controls-body">
+                <div class="control">
+                    <label for="speed">Speed</label>
+                    <input type="range" id="speed" min="1" max="10" value="5">
+                </div>
+                <div class="control">
+                    <label for="drones">Drones</label>
+                    <input type="range" id="drones" min="0" max="10" value="0">
+                </div>
+                <div class="control-buttons">
+                    <button id="status">Start</button>
+                </div>
+            </div>
     </div>
 </body>
 </html>
