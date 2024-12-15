@@ -16,13 +16,13 @@ $(document).ready(function () {
         .click(function (e) {
             placeTarget = "drone-port";
             $("#drone-port-select").css("background-color", "rgba(255, 255, 255, 0.25)");
-            $("#path-node-select").css("background-color", "rgba(0, 0, 0, 0)");
+            $("#path-node-select").css("background-color", "");
         });
 
     $("#path-node-select").click(function (e) {
         placeTarget = "path-node";
         $("#path-node-select").css("background-color", "rgba(255, 255, 255, 0.25)");
-        $("#drone-port-select").css("background-color", "rgba(0, 0, 0, 0)");
+        $("#drone-port-select").css("background-color", "");
     });
 
     $(".map").click(function (e) {
@@ -33,6 +33,11 @@ $(document).ready(function () {
                 createPathNode(e.pageX - 8, e.pageY - 8);
             }
         }
+    });
+
+    $(document).mousemove(function (e) {
+        $("#x").text("X: " + e.pageX);
+        $("#y").text("Y: " + e.pageY);
     });
 });
 
