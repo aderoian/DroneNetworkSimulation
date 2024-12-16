@@ -1,14 +1,23 @@
-var start = false;
-var algorithm = null;
+import Vector2 from "./math/Vector.js";
+
+// config
+var config = {
+    distanceBetweenPorts: 200,
+    distanceBetweenNodes: 30
+}
+
+var simState = {start: false, algorithm: null};
 var placeTarget = "drone-port";
 
-var dronePorts = [];
+var mapElements = {
+    dronePorts: [],
+    pathNodes: []
+}
 
 $(document).ready(function () {
     $("#start").click(function () {
-        start = true;
-        algorithm = $("#algorithm").val() - 1;
-        console.log(algorithm);
+        simState.start = true;
+        simState.algorithm = $("#algorithm").val() - 1;
         $(".menu").css("display", "none");
     });
 
@@ -26,11 +35,11 @@ $(document).ready(function () {
     });
 
     $(".map").click(function (e) {
-        if (start) {
+        if (isStarted()) {
             if (placeTarget === "drone-port")
-                createDronePort(e.pageX - 16, e.pageY - 16);
+                createDronePort(new Vector2(e.pageX - 16, e.pageY - 16));
             else if (placeTarget === "path-node") {
-                createPathNode(e.pageX - 8, e.pageY - 8);
+                createPathNode(new Vector2(e.pageX - 8, e.pageY - 8));
             }
         }
     });
@@ -41,34 +50,57 @@ $(document).ready(function () {
     });
 });
 
-function createDronePort(x, y) {
-    if (!canCreateDronePort(x, y)) return;
+function createDronePort(pos) {
+    if (!canCreateDronePort(pos)) return;
 
-    $("#drone-port").clone(false, false).css("position", "absolute").css("left", x).css("top", y).css("z-index", 10).appendTo(".map");
-    dronePorts.push({ x: x, y: y });
+    $("#drone-port").clone(false, false).css("position", "absolute").css("left", pos.x).css("top", pos.y).css("z-index", 10).appendTo(".map");
+    mapElements.dronePorts.push({ pos: pos });
 }
 
-function canCreateDronePort(x, y) {
-    for (var i = 0; i < dronePorts.length; i++) {
-        const portX = dronePorts[i].x;
-        const portY = dronePorts[i].y;
+function canCreateDronePort(pos) {
+    for (let i = 0; i < mapElements.dronePorts.length; i++) {
+        const otherPos = mapElements.dronePorts[i].pos;
 
-        const bbX1 = portX - 200;
-        const bbX2 = portX + 200 + 32;
-        const bbY1 = portY - 200;
-        const bbY2 = portY + 200 + 32;
-
-        if (x >= bbX1 && x <= bbX2 && y >= bbY1 && y <= bbY2) {
+        if (pos.distance(otherPos) < config.distanceBetweenPorts)
             return false;
-        }
+    }
+    for (let i = 0; i < mapElements.pathNodes.length; i++) {
+        const otherPos = mapElements.pathNodes[i].pos;
+
+        if (pos.distance(otherPos) < config.distanceBetweenNodes)
+            return false;
     }
     return true;
 }
 
-function createPathNode(x, y) {
-    $("#path-node").clone(false, false).css("position", "absolute").css("left", x).css("top", y).css("z-index", 10).appendTo(".map");
+function createPathNode(pos) {
+    if (!canCreatePathNode(pos)) return;
+
+    $("#path-node").clone(false, false).css("position", "absolute").css("left", pos.x).css("top", pos.y).css("z-index", 10).appendTo(".map");
+    mapElements.pathNodes.push({ pos: pos });
 }
 
-function canCreatePathNode(x, y) {
+function canCreatePathNode(pos) {
+    for (let i = 0; i < mapElements.pathNodes.length; i++) {
+        const otherPos = mapElements.pathNodes[i].pos;
+
+        if (pos.distance(otherPos) < config.distanceBetweenNodes)
+            return false;
+    }
+    for (let i = 0; i < mapElements.dronePorts.length; i++) {
+        const otherPos = mapElements.dronePorts[i].pos;
+
+        if (pos.distance(otherPos) < config.distanceBetweenNodes)
+            return false;
+    }
+
     return true;
+}
+
+function isStarted() {
+    return simState.start;
+}
+
+function getAlgorithm() {
+    return simState.algorithm;
 }
