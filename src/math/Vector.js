@@ -1,4 +1,4 @@
-export default class Vector2 {
+export class Vector2 {
     static get zero() {
         return new Vector2(0, 0);
     }
@@ -78,5 +78,30 @@ export default class Vector2 {
 
     toString() {
         return `(${this.x}, ${this.y})`;
+    }
+
+    hashCode() {
+        let hash = 17;
+        hash = hash * 31 + this.x;
+        hash = hash * 31 + this.y;
+        return hash;
+    }
+}
+
+export class CellPos extends Vector2 {
+    constructor(x, y) {
+        super(x >> 5, y >> 5);
+    }
+
+    toPixel() {
+        return new Vector2(this.x * 32, this.y * 32);
+    }
+
+    toPixelCenter() {
+        return new Vector2(this.x * 32 + 16, this.y * 32 + 16);
+    }
+
+    clone() {
+        return new CellPos(this.x, this.y);
     }
 }
