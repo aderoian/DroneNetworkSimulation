@@ -201,5 +201,14 @@ button, select {
     width: 100%;
 }
 
+.path-line {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    transform-origin: top left;
+    background-color: black;
+    height: 2px;
+}
+
 
 
