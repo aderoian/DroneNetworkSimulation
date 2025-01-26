@@ -1,23 +1,26 @@
 import {Vector2, CellPos} from "./math/Vector.js";
+import {Stack} from "./util/Stack.js";
 
 // config
-var config = {
+let config = {
     distanceBetweenPorts: 200,
     distanceBetweenNodes: 30,
     distanceMaxTravelGap: 100
 }
 
-var simState = {start: false, algorithm: null};
-var placeTarget = "drone-port";
-var lastClicked = null; // for node-connector
+let simState = {start: false, algorithm: null};
+let placeTarget = "drone-port";
+let lastClicked = null; // for node-connector
 
-var mapElements = {
+let mapElements = {
     dronePorts: new Map(),
     pathNodes: new Map(),
     lines: []
 }
 
-var graph = new Map();
+let graph = new Map();
+
+let undoStack = new Stack();
 
 $(document).ready(function () {
     $("#start").click(function () {
@@ -69,6 +72,14 @@ $(document).ready(function () {
         $("#x").text("X: " + e.pageX);
         $("#y").text("Y: " + e.pageY);
     });
+
+    $(document).keydown(function (e) {
+        if (e.key === "z" && e.ctrlKey) {
+            if (!undoStack.isEmpty()) {
+                undoStack.pop()();
+            }
+        }
+    });
 });
 
 function onMapNodeClick(pos) {
@@ -86,7 +97,7 @@ function onMapNodeClick(pos) {
     }
 }
 
-function createDronePort(pos) {
+function createDronePort(pos, canUndo = true) {
     if (!canCreateDronePort(pos)) return;
 
     $("#drone-port").clone(false, false)
@@ -98,6 +109,7 @@ function createDronePort(pos) {
         .click(() => onMapNodeClick(pos));
     console.log("Port created at " + pos);
     mapElements.dronePorts.set(pos.hashCode(), {pos: pos});
+    if (canUndo) undoStack.push(() => removeDronePort(pos, false));
 }
 
 
@@ -115,16 +127,17 @@ function canCreateDronePort(pos) {
     return true;
 }
 
-function removeDronePort(pos) {
+function removeDronePort(pos, canUndo = true) {
     const posHash = pos.hashCode();
     if (!mapElements.dronePorts.has(posHash)) return;
 
     $("#drone-port-" + posHash).remove();
     mapElements.dronePorts.delete(posHash);
-    removeLine(pos);
+    if (canUndo) undoStack.push(() => createDronePort(pos, false));
+    removeLinesOfNode(pos);
 }
 
-function createPathNode(pos) {
+function createPathNode(pos, canUndo = true) {
     if (!canCreatePathNode(pos)) return;
 
     $("#path-node").clone(false, false)
@@ -135,6 +148,7 @@ function createPathNode(pos) {
         .css("z-index", 10).appendTo(".map")
         .click(() => onMapNodeClick(pos));
     mapElements.pathNodes.set(pos.hashCode(), { pos: pos });
+    if (canUndo) undoStack.push(() => removePathNode(pos, false));
 }
 
 function canCreatePathNode(pos) {
@@ -152,13 +166,14 @@ function canCreatePathNode(pos) {
     return true;
 }
 
-function removePathNode(pos) {
+function removePathNode(pos, canUndo = true) {
     const posHash = pos.hashCode();
     if (!mapElements.pathNodes.has(posHash)) return;
 
     $("#path-node-" + posHash).remove();
     mapElements.pathNodes.delete(posHash);
-    removeLine(pos);
+    if (canUndo) undoStack.push(() => createPathNode(pos, false));
+    removeLinesOfNode(pos);
 }
 
 function isStarted() {
@@ -174,7 +189,7 @@ function lineExists(pos1, pos2) {
 }
 
 
-function drawLine(pos1, pos2) {
+function drawLine(pos1, pos2, canUndo = true) {
     mapElements.lines.push({ pos1: pos1, pos2: pos2 });
     const pos1Hash = pos1.hashCode();
     const pos2Hash = pos2.hashCode();
@@ -183,7 +198,8 @@ function drawLine(pos1, pos2) {
     if (graph[pos1Hash] === undefined) graph[pos1Hash] = [];
     if (graph[pos2Hash] === undefined) graph[pos2Hash] = [];
     graph[pos1Hash][pos2Hash] = weight;
-    graph[pos2Hash][pos1Hash] = weight
+    graph[pos2Hash][pos1Hash] = weight;
+    if (canUndo) undoStack.push(() => removeLine(pos1, pos2, false));
 
     const angle = Math.atan2(pos2.y - pos1.y, pos2.x - pos1.x);
     const color = (weight > config.distanceMaxTravelGap) ? "red" : "black";
@@ -193,7 +209,8 @@ function drawLine(pos1, pos2) {
         .appendTo(".map");
 }
 
-function removeLine(pos) {
+function removeLinesOfNode(pos, canUndo = true) {
+    const undos = [];
     for (let i = 0; i < mapElements.lines.length; i++) {
         const line = mapElements.lines[i];
         if (line.pos1.equals(pos) || line.pos2.equals(pos)) {
@@ -202,9 +219,25 @@ function removeLine(pos) {
 
             $(`#path-line-${line.pos1.hashCode()}-${line.pos2.hashCode()}`).remove();
             mapElements.lines.splice(i, 1);
+            undos.push(() => drawLine(line.pos1, line.pos2, false));
             delete graph[pos1Hash][pos2Hash];
             delete graph[pos2Hash][pos1Hash];
             i--;
         }
     }
+
+    if (canUndo) undoStack.push(() => undos.forEach(undo => undo()));
+}
+
+function removeLine(pos1, pos2, canUndo = true) {
+    const pos1Hash = pos1.hashCode();
+    const pos2Hash = pos2.hashCode();
+
+    if (graph[pos1Hash] === undefined || graph[pos1Hash][pos2Hash] === undefined) return;
+
+    $(`#path-line-${pos1.hashCode()}-${pos2.hashCode()}`).remove();
+    mapElements.lines.splice(mapElements.lines.findIndex(line => line.pos1.equals(pos1) && line.pos2.equals(pos2)), 1);
+    if (canUndo) undoStack.push(() => drawLine(pos1, pos2, false));
+    delete graph[pos1Hash][pos2Hash];
+    delete graph[pos2Hash][pos1Hash];
 }
