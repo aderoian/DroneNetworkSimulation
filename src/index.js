@@ -1,5 +1,6 @@
 import {Vector2, CellPos} from "./math/Vector.js";
 import {Stack} from "./util/Stack.js";
+import {Simulation} from "./simulate";
 
 // config
 let config = {
@@ -8,6 +9,7 @@ let config = {
     distanceMaxTravelGap: 100
 }
 
+let algorithms = ["a*", "dijkstra", "bfs", "dfs"];
 let simState = {start: false, algorithm: null};
 let placeTarget = "drone-port";
 let lastClicked = null; // for node-connector
@@ -19,13 +21,15 @@ let mapElements = {
 }
 
 let graph = new Map();
+let simulation;
 
 let undoStack = new Stack();
 
 $(document).ready(function () {
     $("#start").click(function () {
         simState.start = true;
-        simState.algorithm = $("#algorithm").val() - 1;
+        simState.algorithm = algorithms[$("#algorithm").val() - 1];
+        simulation = new Simulation(mapElements, simState.algorithm);
         $(".menu").css("display", "none");
     });
 
@@ -65,6 +69,16 @@ $(document).ready(function () {
             const pos = new CellPos(e.pageX, e.pageY).toPixelCenter();
             removeDronePort(pos);
             removePathNode(pos);
+        }
+    });
+
+    $("#status").click(function (e) {
+        if (isStarted()) {
+            simState.start = false;
+            simulation.stop();
+        } else {
+            simState.start = true;
+            simulation.start();
         }
     });
 

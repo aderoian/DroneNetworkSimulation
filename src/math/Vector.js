@@ -29,27 +29,32 @@ export class Vector2 {
     }
 
     add(vector) {
-        this.x += vector.x;
-        this.y += vector.y;
+        return new Vector2(this.x + vector.x, this.y + vector.y);
     }
 
     subtract(vector) {
-        this.x -= vector.x;
-        this.y -= vector.y;
+        return new Vector2(this.x - vector.x, this.y - vector.y);
     }
 
     multiply(scalar) {
-        this.x *= scalar;
-        this.y *= scalar;
+        return new Vector2(this.x * scalar, this.y * scalar);
     }
 
     divide(scalar) {
-        this.x /= scalar;
-        this.y /= scalar;
+        return new Vector2(this.x / scalar, this.y / scalar);
     }
 
     distance(other) {
         return Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2);
+    }
+
+    normalize() {
+        const magnitude = this.magnitude;
+        return new Vector2(this.x / magnitude, this.y / magnitude);
+    }
+
+    get magnitude() {
+        return Math.sqrt(this.x ** 2 + this.y ** 2);
     }
 
     up() {
